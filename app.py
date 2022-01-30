@@ -3,6 +3,7 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound
 
+from utils import validation, payments, dates, DATESTR
 
 class App(object):
 
@@ -25,15 +26,52 @@ class App(object):
         except HTTPException as e:
             return e
 
-
     def on_get_next_debit(self, request):
         body = request.get_json()
+        response = {}
+
+        try:
+            # Basic checks for input
+            if not validation.input_valid(body):
+                response = { "Error": "Invalid input detected.  Check logs for details" }
+            else:
+                next_payment_date = dates.get_next_payment_date(body['loan']) # get expected next payment date
+                payment_amount = payments.get_payment_amount(body['loan'], next_payment_date) # get amount based on this original date
+
+                # Pushes out payment date until next business day if next_payment_date is a holiday
+                # Does not impact payment amount
+                next_payment_date = dates.handle_holidays(next_payment_date, body['loan']['schedule_type'])
+
+                response = {
+                    "debit": {
+                        "amount": payment_amount,
+                        "date": next_payment_date.strftime(DATESTR)
+                    }
+                }
+
+        except Exception as exc:
+            err_msg = "Unable to return next debit information.  See logs for details."
+            response = {"ERROR": err_msg}
+
+        return Response(json.dumps(response), mimetype='application/json')
+
+    def wsgi_app(self, environ, start_response):
+        request = Request(environ)
+        response = self.dispatch_request(request)
+        return response(environ, start_response)
+        response = {}
+
+        if body is None:
+            response = { "Error": "No JSON body provided" }
+        elif not validation.input_valid(body):
+            response = { "Error": "Invalid input detected.  Check logs for details" }
+        else:
+            next_payment_date = dates.get_next_payment_date(body['loan'])
 
         ##############
         # START HERE #
         ##############
 
-        response = {}
 
         return Response(json.dumps(response), mimetype='application/json')
 

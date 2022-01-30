@@ -61,12 +61,72 @@ SAMPLE_RESPONSE_2 = [
     {
         'today': '2021-05-23',
         'amount': 330,
-        'date': '2021-05-31'
+        'date': '2021-06-01'
     },
     {
         'today': '2021-06-05',
         'amount': 495,
         'date': '2021-06-14'
+    }
+]
+
+
+SAMPLE_REQUEST_CDREW_1 = {
+    'loan': {
+        'monthly_payment_amount': 1200,
+        'payment_due_day': 15,
+        'schedule_type': 'monthly',
+        'debit_start_date': '2021-12-24',
+        'debit_day_of_week': 'Friday'
+    }
+}
+
+
+SAMPLE_RESPONSE_CDREW_1 = [
+    {
+        'today': '2021-12-01',
+        'amount': 1200,
+        'date': '2021-12-27'
+    },
+    {
+        'today': '2021-12-24',
+        'amount': 1200,
+        'date': '2022-01-24'
+    },
+    {
+        'today': '2021-12-28',
+        'amount': 1200,
+        'date': '2022-01-24'
+    }
+]
+
+
+SAMPLE_REQUEST_CDREW_2 = {
+    'loan': {
+        'monthly_payment_amount': 600,
+        'payment_due_day': 5,
+        'schedule_type': 'weekly',
+        'debit_start_date': '2021-12-03',
+        'debit_day_of_week': 'Friday'
+    }
+}
+
+
+SAMPLE_RESPONSE_CDREW_2 = [
+    {
+        'today': '2021-12-01',
+        'amount': 120,
+        'date': '2021-12-03'
+    },
+    {
+        'today': '2021-12-24',
+        'amount': 120,
+        'date': '2022-01-03'
+    },
+    {
+        'today': '2021-12-31',
+        'amount': 150,
+        'date': '2022-01-07'
     }
 ]
 
@@ -93,6 +153,28 @@ def test_case_1(app_client, expected):
 @pytest.mark.parametrize('expected', SAMPLE_RESPONSE_2)
 def test_case_2(app_client, expected):
     request = SAMPLE_REQUEST_2
+
+    with freeze_time(expected['today']):
+        response = app_client.post('/get_next_debit', json=request)
+        assert response.status_code == 200
+        assert response.json['debit']['amount'] == expected['amount']
+        assert response.json['debit']['date'] == expected['date']
+
+
+@pytest.mark.parametrize('expected', SAMPLE_RESPONSE_CDREW_1)
+def test_case_cdrew_1(app_client, expected):
+    request = SAMPLE_REQUEST_CDREW_1
+
+    with freeze_time(expected['today']):
+        response = app_client.post('/get_next_debit', json=request)
+        assert response.status_code == 200
+        assert response.json['debit']['amount'] == expected['amount']
+        assert response.json['debit']['date'] == expected['date']
+
+
+@pytest.mark.parametrize('expected', SAMPLE_RESPONSE_CDREW_2)
+def test_case_cdrew_2(app_client, expected):
+    request = SAMPLE_REQUEST_CDREW_2
 
     with freeze_time(expected['today']):
         response = app_client.post('/get_next_debit', json=request)

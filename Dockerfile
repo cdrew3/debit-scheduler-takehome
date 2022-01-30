@@ -8,6 +8,7 @@ COPY poetry.lock ./
 ENV POETRY_VERSION=1.0.5
 
 RUN pip install "poetry==$POETRY_VERSION"
+RUN pip install holidays
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-root
 
