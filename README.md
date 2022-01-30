@@ -1,3 +1,4 @@
+
 # Debit Scheduler Take-home
 
 Welcome! If you're reading this, odds are that you're interviewing for a backend engineering role at EarnUp. We are excited to continue the conversation! Your mission, should you choose to accept, is to build a debit scheduling endpoint for loans.
