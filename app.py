@@ -5,6 +5,7 @@ from werkzeug.exceptions import HTTPException, NotFound
 
 from utils import validation, payments, dates, DATESTR
 
+
 class App(object):
 
     def __init__(self):
@@ -52,26 +53,6 @@ class App(object):
         except Exception as exc:
             err_msg = "Unable to return next debit information.  See logs for details."
             response = {"ERROR": err_msg}
-
-        return Response(json.dumps(response), mimetype='application/json')
-
-    def wsgi_app(self, environ, start_response):
-        request = Request(environ)
-        response = self.dispatch_request(request)
-        return response(environ, start_response)
-        response = {}
-
-        if body is None:
-            response = { "Error": "No JSON body provided" }
-        elif not validation.input_valid(body):
-            response = { "Error": "Invalid input detected.  Check logs for details" }
-        else:
-            next_payment_date = dates.get_next_payment_date(body['loan'])
-
-        ##############
-        # START HERE #
-        ##############
-
 
         return Response(json.dumps(response), mimetype='application/json')
 

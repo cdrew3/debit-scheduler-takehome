@@ -8,6 +8,8 @@ from utils import PAYMENTSPERSCHEDULE, PAYMENTSCHEDULEINCR, DATESTR, BANKINGHOLI
 
 # Get number of payments in a month to determine how much each payment should be
 def get_payments_in_month(debit_start_date, schedule_type):
+    """Get all payments in a month in an array"""
+
     payment_dates = []
     if schedule_type.lower() == "monthly":
         payment_dates.append(debit_start_date)
@@ -28,6 +30,7 @@ def get_payments_in_month(debit_start_date, schedule_type):
 
 
 def validate_start_date(start_date, day_of_week):
+    """Verify dates and days passed in make sense.  Doesn't try to assume anything if things don't match up."""
 
     errs = []
     start_date = dt.datetime.strptime(start_date, "%Y-%m-%d")
@@ -44,7 +47,9 @@ def validate_start_date(start_date, day_of_week):
         print("\n".join(errs))
         raise Exception("Input errors detected")
 
+
 def handle_holidays(debit_start_date, schedule_type):
+    """Check if debit date falls on a holiday and move it to next business day"""
 
     # Get all banking holiday dates
     banking_holiday_dates = [date for date, name in holidays.US(years=debit_start_date.year).items() if name.replace(" (Observed)", "") in BANKINGHOLIDAYNAMES]
@@ -57,6 +62,9 @@ def handle_holidays(debit_start_date, schedule_type):
 
 
 def get_next_payment_date(loan):
+    """
+    High level function for calculating the next debit date
+    """
 
     debit_start_date = loan['debit_start_date']
     debit_day_of_week = loan['debit_day_of_week']

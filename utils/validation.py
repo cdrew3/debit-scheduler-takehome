@@ -1,6 +1,9 @@
 from utils import VALIDSCHEDULETYPES
 
+
 def input_valid(body):
+    """Validate body of request and try to grab all errors before returning"""
+
     errs = []
     warns = []
 
